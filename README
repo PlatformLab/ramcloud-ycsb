@@ -1,0 +1,18 @@
+This repository contains the YCSB benchmark, plus additional code for
+running it with RAMCloud. To run one or more YCSB benchmarks, do the following:
+
+* Make a RAMCloud install directory visible at "ramcloud". RAMCloud itself
+  is not included in this repository, so you must clone a RAMCloud repository
+  someplace else and build it. Once you've done that, then run "make install"
+  in the RAMCloud directory and create a symbolic from "ramcloud" in this
+  directory to the RAMCloud ddirectory where you ran "make install".
+  Alternatively, you can run "make install INSTALL_DIR=xxx" in the RAMCloud
+  directory, where "xxx" refers to "ramcloud" in this directory.
+* Run "make" in this directory to compile YCSB and additional supporting
+  code.
+* Edit the file "runYcsb" and modify the configuration options near the top
+  of that file to specify the experiments you want to run. The RAMCloud
+  server configuration is currently hardwired into that file, so you may
+  have to modify that as well, if you aren't using the expected configuration.
+* Invoke runYcsb from your command-line. Log files and other information
+  will be stored in the "logs" subdirectory.

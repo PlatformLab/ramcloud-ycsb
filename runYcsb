@@ -1,0 +1,130 @@
+#!/bin/sh
+# This is the top-level script that runs one or more of the YCSB benchmarks
+# on RAMCloud.  This script is somewhat brittle right now: not much error
+# handling, hardwired configuration information, etc.
+
+# Configuration information you may need to modify:
+
+# Information about the experiments you'd like to run:
+# TRANSPORTS:       list of RAMCloud transports to use
+# SERVER_MEMORIES:  list of different log sizes to try on the servers, which
+#                   determine memory utilization; 1680 supposedly means 75%
+#                   utilization and 1450 supposedly means 90% utilization
+# CLIENT_COUNTS:    different numbers of clients to try
+# WORKLOADS:        YCSB workloads to run (combination of a, b, c, d, and f;
+#                   RAMCloud can't currently run with e); must run workload f
+#                   before d (not sure why)
+# RUNS:             How many different runs to carry out with each setting
+
+TRANSPORTS="infrc"
+SERVER_MEMORIES="1680"
+CLIENT_COUNTS="24"
+WORKLOADS="c"
+RUNS=1
+
+# Machines to use for the runs ("xx" means "rcxx").
+COORDINATOR="60"
+SERVERS=`for i in {61..72}; do echo $i; done`
+FILL_CLIENTS=`for i in {30..39}; do echo $i; done`
+CLIENTS="`for i in {30..44}; do echo $i; done` `for i in {46..54}; do echo $i; done`"
+
+# Top-level directory in which log subdirectories will be created.
+TOP_LOG_DIR="logs"
+
+# Current directory, for passing to ssh programs
+WD=`pwd`
+
+# Directory containing RAMCloud binaries
+RAMCLOUD_BIN="$WD/ramcloud/bin"
+
+TIME=$(date +%Y%m%d%H%M%S)
+TOP_LOG_DIR=`pwd`"/logs"
+LOG_DIR="$TOP_LOG_DIR/${TIME}$1"
+mkdir -p $LOG_DIR
+rm $TOP_LOG_DIR/latest
+ln -s $LOG_DIR $TOP_LOG_DIR/latest
+
+for TRANSPORT in $TRANSPORTS; do
+  for SERVER_MEMORY in $SERVER_MEMORIES; do
+    for ((RUN=1; RUN<=$RUNS; RUN++)); do
+      for CLIENT_COUNT in $CLIENT_COUNTS; do
+        LOG_SUBDIR="$LOG_DIR/$TRANSPORT""_$SERVER_MEMORY""_$CLIENT_COUNT""clients_run$RUN"
+        mkdir -p $LOG_SUBDIR
+        COORD_LOCATOR="$TRANSPORT:host=192.168.1.1$COORDINATOR,port=14246"
+
+        # Start Servers
+        echo "Starting coordinator for run $RUN..."
+        ssh rc$COORDINATOR $RAMCLOUD_BIN/coordinator \
+            -C $COORD_LOCATOR \
+            -d 10000 \
+            --clusterName=__unnamed__ > $LOG_SUBDIR/coordinator.log 2>&1 &
+
+        echo "Starting servers for run $RUN..."
+        for s in $SERVERS; do
+          ssh rc$s $RAMCLOUD_BIN/server \
+              -C $COORD_LOCATOR \
+              -L $TRANSPORT:host=192.168.1.1$s,port=14242 \
+              --clusterName="__unnamed__" \
+              -f /dev/sda2 \
+              --segmentFrames 12000 \
+              --maxNonVolatileBuffers 20 \
+              --detectFailures 0 \
+              --timeout 10000 \
+              -r 3 \
+              -t $SERVER_MEMORY \
+              -E 3 \
+              -w 1 \
+              --masterServiceThreads 1 \
+              --logCleanerThreads 2 \
+              --cleanerBalancer=tombstoneRatio:0.40 \
+              --preferredIndex=$s \
+              > $LOG_SUBDIR/server-rc$s.log 2>&1 &
+        done
+        if $RAMCLOUD_BIN/ensureServers -C $COORD_LOCATOR --masters 12 \
+            --backups 12 --wait 20 > $LOG_SUBDIR/ensureServers.log 2>&1; then
+          true
+        else
+          echo "Cluster didn't startup correctly; see $LOG_SUBDIR/ensureServers.log"
+          ssh rc$COORDINATOR pkill coordinator
+          for s in $SERVERS; do
+            ssh rc$s pkill server
+          done
+          exit 1
+        fi
+
+        # Load the dataset for the run
+        echo "Filling the key-value store for run $RUN..."
+        ./helper $COORD_LOCATOR logMessage NOTICE \
+            "**** Filling the key-value store for run $RUN"
+        ./fill.sh $WD $COORD_LOCATOR $LOG_SUBDIR "$FILL_CLIENTS"
+        ./helper $COORD_LOCATOR logMessage NOTICE \
+            "**** Finished filling the key-value store"
+
+        # Run the measurement workloads
+        for WORKLOAD in $WORKLOADS; do
+          echo "Running workload $WORKLOAD for run $RUN..."
+          ./helper $COORD_LOCATOR logMessage NOTICE \
+              "**** Running workload $WORKLOAD for run $RUN"
+          mkdir $LOG_SUBDIR/workload$WORKLOAD
+          ./run.sh $WD $LOG_SUBDIR/workload$WORKLOAD $COORD_LOCATOR \
+              workload${WORKLOAD} "$CLIENTS"
+        done
+
+        # Kill all servers
+        echo "Killing servers for run $RUN..."
+        ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
+        ssh rc$COORDINATOR pkill coordinator
+        for s in $SERVERS; do
+          ssh rc$s pkill server
+        done
+
+        # Leave a bit of time for servers to really exit before the next run
+        # (not sure why this is needed...)
+        sleep 5
+      done
+    done
+  done
+done
+
+# Print statistics
+./printStats.py $LOG_DIR | tee $LOG_DIR/stats
