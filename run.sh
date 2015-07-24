@@ -49,17 +49,21 @@ LOGS=""
 for CLIENT in $CLIENTS; do
   LOG=$LOG_DIR/client-rc$CLIENT.log
   LOGS="$LOGS $LOG"
+  CMD="sh $WD/rc-ycsb.sh ${WORKLOAD} 10000000 $COORD \
+       > $LOG_DIR/client-rc$CLIENT.log 2>&1"
   if [ $CLIENT == $LAST_CLIENT ]; then
-    ssh rc$CLIENT sh $WD/rc-ycsb.sh ${WORKLOAD} 10000000 $COORD \
-         > $LOG_DIR/client-rc$CLIENT.log 2>&1
+    ssh rc$CLIENT $CMD >/dev/null 2>&1
   else
-    ssh rc$CLIENT sh $WD/rc-ycsb.sh ${WORKLOAD} 10000000 $COORD \
-        > $LOG_DIR/client-rc$CLIENT.log 2>&1 &
+    ssh rc$CLIENT $CMD >/dev/null 2>&1 &
   fi
   usleep 1000
 done
 
 $WD/helper $COORD getStats > $PERF_AFTER
 $WD/diffPerfStats.py $PERF_BEFORE $PERF_AFTER > $LOG_DIR/perfStats
+
+# In case the time trace dumper didn't already finish, kill it so
+# it doesn't hang around and cause trouble later.
+pkill helper > /dev/null 2>&1
 
 ./waitClients.sh $LOGS

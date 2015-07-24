@@ -54,17 +54,19 @@ for TRANSPORT in $TRANSPORTS; do
 
         # Start Servers
         echo "Starting coordinator for run $RUN..."
-        ssh rc$COORDINATOR $RAMCLOUD_BIN/coordinator \
+          CMD="$RAMCLOUD_BIN/coordinator \
             -C $COORD_LOCATOR \
             -d 10000 \
-            --clusterName=__unnamed__ > $LOG_SUBDIR/coordinator.log 2>&1 &
+            --clusterName=__unnamed__ \
+            > $LOG_SUBDIR/coordinator.log 2>&1"
+        ssh rc$COORDINATOR "$CMD" > /dev/null 2>&1 &
 
         echo "Starting servers for run $RUN..."
         for s in $SERVERS; do
-          ssh rc$s $RAMCLOUD_BIN/server \
+          CMD="$RAMCLOUD_BIN/server \
               -C $COORD_LOCATOR \
               -L $TRANSPORT:host=192.168.1.1$s,port=14242 \
-              --clusterName="__unnamed__" \
+              --clusterName=__unnamed__ \
               -f /dev/sda2 \
               --segmentFrames 12000 \
               --maxNonVolatileBuffers 20 \
@@ -78,7 +80,8 @@ for TRANSPORT in $TRANSPORTS; do
               --logCleanerThreads 2 \
               --cleanerBalancer=tombstoneRatio:0.40 \
               --preferredIndex=$s \
-              > $LOG_SUBDIR/server-rc$s.log 2>&1 &
+              > $LOG_SUBDIR/server-rc$s.log 2>&1"
+          ssh rc$s "$CMD" > /dev/null 2>&1 &
         done
         if $RAMCLOUD_BIN/ensureServers -C $COORD_LOCATOR --masters 12 \
             --backups 12 --wait 20 > $LOG_SUBDIR/ensureServers.log 2>&1; then
@@ -109,10 +112,10 @@ for TRANSPORT in $TRANSPORTS; do
           ./run.sh $WD $LOG_SUBDIR/workload$WORKLOAD $COORD_LOCATOR \
               workload${WORKLOAD} "$CLIENTS"
         done
+        ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
 
         # Kill all servers
         echo "Killing servers for run $RUN..."
-        ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
         ssh rc$COORDINATOR pkill coordinator
         for s in $SERVERS; do
           ssh rc$s pkill server
