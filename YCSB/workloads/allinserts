@@ -1,0 +1,19 @@
+# this is for kv, so 1 field only
+fieldcount=1
+# zipfian distribution of lengths
+fieldlengthdistribution=zipfian
+# when using a zipfian length distribution, i believe this sets the max length
+# note that libmemcached's performance _really_ sucks when we get near 10KB for
+# some reason. So keep the max size a little lower. Not sure what's going on
+# here.
+fieldlength=8192
+# number of unique keys, 1M here
+recordcount=100000000
+# number of queries, 1M
+operationcount=100000000
+# distribution
+requestdistribution=zipfian
+# we're using inserts only
+readproportion=0
+updateproportion=1
+insertproportion=0

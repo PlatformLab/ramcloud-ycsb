@@ -1,0 +1,21 @@
+# Something like MemC3's "Cache Miss Ratio" (in Section 5.3) benchmark
+# As far as I can tell, they don't say how many records they used, just
+# how many operations there were.
+
+recordcount=100000000
+operationcount=100000000
+workload=com.yahoo.ycsb.workloads.CoreWorkload
+fieldcount=1
+
+# options include constant, uniform, zipfian
+fieldlengthdistribution=constant
+
+# this is the maximum field length
+fieldlength=100
+
+readallfields=true
+readproportion=0.95
+updateproportion=0.05
+scanproportion=0
+insertproportion=0
+requestdistribution=zipfian

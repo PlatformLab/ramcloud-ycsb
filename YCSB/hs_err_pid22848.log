@@ -1,0 +1,145 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x0000003f7c235d05, pid=22848, tid=139882140186368
+#
+# JRE version: 7.0_09
+# Java VM: OpenJDK 64-Bit Server VM (23.2-b09 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# C  [libc.so.6+0x35d05]  exit+0x35
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please include
+# instructions on how to reproduce the bug and visit:
+#   http://icedtea.classpath.org/bugzilla
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f38e417a800):  JavaThread "Thread-5" [_thread_in_native, id=22887, stack(0x00007f38d936b000,0x00007f38d946c000)]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=128 (), si_addr=0x0000000000000000
+
+Registers:
+RAX=0x00007f386c000076, RBX=0x00007f386c049d60, RCX=0x00106645ec04ac30, RDX=0x000fe70d80000ee0
+RSP=0x00007f38d9468f30, RBP=0x0000000000000001, RSI=0x0000000000000001, RDI=0x0000003f808f32c0
+R8 =0x00007f38d946b700, R9 =0x0000000000000000, R10=0x00000000ffffffef, R11=0x0000000000000206
+R12=0x00007f38d9468fa0, R13=0x0000000000000010, R14=0x00007f385c00b4e8, R15=0x00007f385c00b620
+RIP=0x0000003f7c235d05, EFLAGS=0x0000000000010202, CSGSFS=0x0000000000000033, ERR=0x0000000000000000
+  TRAPNO=0x000000000000000d
+
+Top of Stack: (sp=0x00007f38d9468f30)
+0x00007f38d9468f30:   0000000000001000 0000000008010000
+0x00007f38d9468f40:   00007f38d9468fa0 00007f38da18d39c
+0x00007f38d9468f50:   00007f38da21fea0 00007f385c00b530
+0x00007f38d9468f60:   00007f385c00b620 00007f38da1cbb07
+0x00007f38d9468f70:   00007f385c00b530 0000000000801000
+0x00007f38d9468f80:   0000000008010000 00007f38da1d54d6
+0x00007f38d9468f90:   00007f381377a000 0001020000801000
+0x00007f38d9468fa0:   00007f38da21d978 00007f380000015b
+0x00007f38d9468fb0:   00007f38da21fea0 00007f38da21fe20
+0x00007f38d9468fc0:   000000000000003f 00007f38da1cfc7d
+0x00007f38d9468fd0:   00007f385c00e730 0000003f7ba14695
+0x00007f38d9468fe0:   00007f385c00b510 0000000000000600
+0x00007f38d9468ff0:   00007f385c00e130 00007f385c00b4d0
+0x00007f38d9469000:   00007f385c00e730 000000000000003f
+0x00007f38d9469010:   00007f385c00e730 00007f385c00b530
+0x00007f38d9469020:   00007f385c00b620 00007f38da1d19a1
+0x00007f38d9469030:   00007f38da0d6930 00007f38da0d6930
+0x00007f38d9469040:   00007f38da0d6930 00007f38da0d6930
+0x00007f38d9469050:   00007f385c00b620 00007f385c00b530
+0x00007f38d9469060:   00007f385c00b510 00007f385c00b4e0
+0x00007f38d9469070:   00007f38d9469310 00007f385c00b5d8
+0x00007f38d9469080:   00007f385c00b5f8 00007f385c00b628
+0x00007f38d9469090:   0000000000000000 00007f38d9469320
+0x00007f38d94690a0:   00007f38d94692f8 00007f38d94691f0
+0x00007f38d94690b0:   00007f3800000004 0000000000000001
+0x00007f38d94690c0:   0000000000000000 0000000000000060
+0x00007f38d94690d0:   0000000000000000 0000000000000000
+0x00007f38d94690e0:   0000000000000000 0000003100000004
+0x00007f38d94690f0:   0000007c0000005b 0000006e00000077
+0x00007f38d9469100:   0000000000000000 00007f385c00b340
+0x00007f38d9469110:   0000000000000030 00007f385c000020
+0x00007f38d9469120:   00007f38d8d5a01c 00007f385c00b3c0 
+
+Instructions: (pc=0x0000003f7c235d05)
+0x0000003f7c235ce5:   44 00 00 48 8b 43 08 48 89 c2 48 c1 e2 05 48 85
+0x0000003f7c235cf5:   c0 48 8d 4c 1a f0 74 2a 48 83 e8 01 48 89 43 08
+0x0000003f7c235d05:   48 8b 11 48 83 fa 03 0f 84 ae 00 00 00 48 83 fa
+0x0000003f7c235d15:   04 74 78 48 83 fa 02 74 4a 48 83 e9 20 48 85 c0 
+
+Register to memory mapping:
+
+RAX=0x00007f386c000076 is an unknown value
+RBX=0x00007f386c049d60 is an unknown value
+RCX=0x00106645ec04ac30 is an unknown value
+RDX=0x000fe70d80000ee0 is an unknown value
+RSP=0x00007f38d9468f30 is pointing into the stack for thread: 0x00007f38e417a800
+RBP=0x0000000000000001 is an unknown value
+RSI=0x0000000000000001 is an unknown value
+RDI=0x0000003f808f32c0: _ZNSs4_Rep20_S_empty_rep_storageE+0 in /usr/lib64/libstdc++.so.6 at 0x0000003f80600000
+R8 =0x00007f38d946b700 is pointing into the stack for thread: 0x00007f38e417a800
+R9 =0x0000000000000000 is an unknown value
+R10=0x00000000ffffffef is an unknown value
+R11=0x0000000000000206 is an unknown value
+R12=0x00007f38d9468fa0 is pointing into the stack for thread: 0x00007f38e417a800
+R13=0x0000000000000010 is an unknown value
+R14=0x00007f385c00b4e8 is an unknown value
+R15=0x00007f385c00b620 is an unknown value
+
+
+Stack: [0x00007f38d936b000,0x00007f38d946c000],  sp=0x00007f38d9468f30,  free space=1015k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libc.so.6+0x35d05]  exit+0x35
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  edu.stanford.ramcloud.RAMCloud.cppCreateTable(J)V+0
+j  edu.stanford.ramcloud.RAMCloud.createTable(Ljava/lang/String;I)J+39
+j  com.yahoo.ycsb.db.RamCloudClient.getTableId(Ljava/lang/String;)J+25
+j  com.yahoo.ycsb.db.RamCloudClient.read(Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/HashMap;)I+18
+j  com.yahoo.ycsb.DBWrapper.read(Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/HashMap;)I+14
+j  com.yahoo.ycsb.workloads.CoreWorkload.doTransactionRead(Lcom/yahoo/ycsb/DB;)V+80
+j  com.yahoo.ycsb.workloads.CoreWorkload.doTransaction(Lcom/yahoo/ycsb/DB;Ljava/lang/Object;)Z+19
+j  com.yahoo.ycsb.ClientThread.run()V+152
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007f38e417f800 JavaThread "Thread-8" [_thread_in_native, id=22895, stack(0x00007f38d8254000,0x00007f38d8355000)]
+  0x00007f38e417e000 JavaThread "Thread-7" [_thread_in_native, id=22889, stack(0x00007f38d8f5b000,0x00007f38d905c000)]
+  0x00007f38e417c800 JavaThread "Thread-6" [_thread_in_native, id=22888, stack(0x00007f38d905c000,0x00007f38d915d000)]
+=>0x00007f38e417a800 JavaThread "Thread-5" [_thread_in_native, id=22887, stack(0x00007f38d936b000,0x00007f38d946c000)]
+  0x00007f38e4179000 JavaThread "Thread-4" [_thread_in_native, id=22886, stack(0x00007f38d966f000,0x00007f38d9770000)]
+  0x00007f38e4177800 JavaThread "Thread-3" [_thread_in_native, id=22883, stack(0x00007f38da663000,0x00007f38da764000)]
+  0x00007f38e4176800 JavaThread "Thread-2" [_thread_in_native, id=22876, stack(0x00007f38da764000,0x00007f38da865000)]
+  0x00007f38e4175800 JavaThread "Thread-1" [_thread_in_native, id=22875, stack(0x00007f38da865000,0x00007f38da966000)]
+  0x00007f38e4117800 JavaThread "Service Thread" daemon [_thread_blocked, id=22866, stack(0x00007f38daa67000,0x00007f38dab68000)]
+  0x00007f38e4115800 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=22865, stack(0x00007f38dab68000,0x00007f38dac69000)]
+  0x00007f38e4112800 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=22864, stack(0x00007f38dac69000,0x00007f38dad6a000)]
+  0x00007f38e4110800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=22863, stack(0x00007f38dad6a000,0x00007f38dae6b000)]
+  0x00007f38e40ba000 JavaThread "Finalizer" daemon [_thread_blocked, id=22861, stack(0x00007f38dae6b000,0x00007f38daf6c000)]
+  0x00007f38e40b8000 JavaThread "Reference Handler" daemon [_thread_blocked, id=22860, stack(0x00007f38daf6c000,0x00007f38db06d000)]
+  0x00007f38e4009000 JavaThread "main" [_thread_blocked, id=22849, stack(0x00007f38eb680000,0x00007f38eb781000)]
+
+Other Threads:
+  0x00007f38e40af800 VMThread [stack: 0x00007f38db06d000,0x00007f38db16e000] [id=22858]
+  0x00007f38e4122000 WatcherThread [stack: 0x00007f38da966000,0x00007f38daa67000] [id=22867]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen      total 55552K, used 11429K [0x00000007c2000000, 0x00000007c5e00000, 0x0000000800000000)
+  eden space 47616K, 24% used [0x00000007c2000000,0x00000007c2b294a0,0x00000007c4e80000)
+  from space 7936K, 0% used [0x00000007c5640000,0x00000007c5640000,0x00000007c5e00000)
+  to   space 7936K, 0% used [0x00000007c4e80000,0x00000007c4e80000,0x00000007c5640000)
+ ParOldGen       total 126976K, used 0K [0x0000000746000000, 0x000000074dc00000, 0x00000007c2000000)
+  object space 126976K, 0% used [0x0000000746000000,0x0000000746000000,0x000000074dc00000)
+ PSPermGen       total 21248K, used 3253K [0x000000073ba00000, 0x000000073cec0000, 0x0000000746000000)
+  object space 21248K, 15% used [0x000000073ba00000,0x000000073bd2d6c8,0x000000073cec0000)
+
