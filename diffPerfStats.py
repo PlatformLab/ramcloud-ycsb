@@ -84,13 +84,13 @@ if len(sys.argv) != 3:
 data1 = readFile(sys.argv[1])
 data2 = readFile(sys.argv[2])
 servers = difference(data1, data2)
-print("server  time   reads   writes   reads   writes   disp.  worker  netIn  netOut")
-print("        (s)   (Mops)   (Mops)  (kOp/s)  (kOp/s) utiliz.  cores  (MB/s) (MB/s)")
+print("server   time   reads   writes   reads   writes   disp.  worker  netIn  netOut")
+print("         (s)   (Mops)   (Mops)  (kOp/s)  (kOp/s) utiliz.  cores  (MB/s) (MB/s)")
 for serverName in sorted(servers.keys()):
     stats = servers[serverName]
     cyclesPerSecond = data1[serverName]["cyclesPerSecond"]
     elapsedSeconds = stats["collectionTime"]/cyclesPerSecond
-    print("%s %7.2f %7.2f  %7.2f %7.1f  %7.1f %6.2f  %6.2f %7.1f %7.1f" % (
+    print("%5s %7.2f %7.2f  %7.2f %7.1f  %7.1f %6.2f  %6.2f %7.1f %7.1f" % (
             serverName,
             stats["collectionTime"]/cyclesPerSecond,
             stats["readCount"]/1e6,
@@ -104,8 +104,8 @@ for serverName in sorted(servers.keys()):
             ))
 
 print("")
-print("server  compactor cleaner compactor cleaner cleanerIO")
-print("          cores    cores   utiliz.  utiliz.   (MB/s) ")
+print("server   compactor cleaner compactor cleaner cleanerIO")
+print("           cores    cores   utiliz.  utiliz.   (MB/s) ")
 for serverName in sorted(servers.keys()):
     stats = servers[serverName]
     cyclesPerSecond = data1[serverName]["cyclesPerSecond"]
@@ -118,7 +118,7 @@ for serverName in sorted(servers.keys()):
     if stats["cleanerInputDiskBytes"] > 0:
         cleanerUtiliz = (stats["cleanerSurvivorBytes"] /
                 stats["cleanerInputDiskBytes"])
-    print("%s    %6.2f   %6.2f   %6.2f   %6.2f   %7.1f" % (
+    print("%5s    %6.2f   %6.2f   %6.2f   %6.2f   %7.1f" % (
             serverName,
             stats["compactorActiveCycles"]/stats["collectionTime"],
             stats["cleanerActiveCycles"]/stats["collectionTime"],
@@ -128,20 +128,20 @@ for serverName in sorted(servers.keys()):
             ))
 
 print("")
-print("server  diskIn  diskIn  diskOut  diskOut   temp1  temp2  temp3  temp4")
-print("        (MB/s)  active   (MB/s)   active   (M/s)   (K)   (M/s)   (K)")
+print("server   diskIn  diskIn  diskOut  diskOut   temp1   temp2   temp3   temp4")
+print("         (MB/s)  active   (MB/s)   active   (M/s)   (M/s)   (M/s)   (M/s)")
 for serverName in sorted(servers.keys()):
     stats = servers[serverName]
     cyclesPerSecond = data1[serverName]["cyclesPerSecond"]
     elapsedSeconds = stats["collectionTime"]/cyclesPerSecond
-    print("%s   %7.1f %6.2f   %7.1f   %6.2f %7.1f%7.1f%7.1f%7.1f" % (
+    print("%5s   %7.1f %6.2f   %7.1f   %6.2f %7.1f %7.3f %7.1f %7.1f" % (
             serverName,
             (stats["backupReadBytes"]/elapsedSeconds)/1e6,
             stats["backupReadActiveCycles"]/stats["collectionTime"],
             (stats["backupWriteBytes"]/elapsedSeconds)/1e6,
             stats["backupWriteActiveCycles"]/stats["collectionTime"],
             (stats["temp1"]/elapsedSeconds)/1e6,
-            stats["temp2"]/1e3,
+            (stats["temp2"]/elapsedSeconds)/1e6,
             (stats["temp3"]/elapsedSeconds)/1e6,
-            stats["temp4"]/1e3
+            (stats["temp4"]/elapsedSeconds)/1e6
             ))
