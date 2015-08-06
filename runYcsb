@@ -19,14 +19,19 @@
 TRANSPORTS="infrc"
 SERVER_MEMORIES="1680"
 CLIENT_COUNTS="24"
-WORKLOADS="c"
+WORKLOADS="a"
 RUNS=1
 
 # Machines to use for the runs ("xx" means "rcxx").
 COORDINATOR="60"
 SERVERS=`for i in {61..72}; do echo $i; done`
 FILL_CLIENTS=`for i in {30..39}; do echo $i; done`
-CLIENTS="`for i in {30..44}; do echo $i; done` `for i in {46..54}; do echo $i; done`"
+CLIENTS="`for i in {30..44}; do echo $i; done`"
+CLIENTS="$CLIENTS `for i in {46..54}; do echo $i; done`"
+
+# Uncomment the following line to start up an extra backup on the
+# given servers.
+# EXTRA_BACKUPS="69 70 71 72 73 74 75 76 77 78 79 80"
 
 # Top-level directory in which log subdirectories will be created.
 TOP_LOG_DIR="logs"
@@ -62,6 +67,8 @@ for TRANSPORT in $TRANSPORTS; do
         ssh rc$COORDINATOR "$CMD" > /dev/null 2>&1 &
 
         echo "Starting servers for run $RUN..."
+        NUM_BACKUPS="0"
+        NUM_MASTERS="0"
         for s in $SERVERS; do
           CMD="$RAMCLOUD_BIN/server \
               -C $COORD_LOCATOR \
@@ -82,14 +89,46 @@ for TRANSPORT in $TRANSPORTS; do
               --preferredIndex=$s \
               > $LOG_SUBDIR/server-rc$s.log 2>&1"
           ssh rc$s "$CMD" > /dev/null 2>&1 &
+          NUM_MASTERS=$((NUM_MASTERS + 1))
+          NUM_BACKUPS=$((NUM_BACKUPS + 1))
         done
-        if $RAMCLOUD_BIN/ensureServers -C $COORD_LOCATOR --masters 12 \
-            --backups 12 --wait 20 > $LOG_SUBDIR/ensureServers.log 2>&1; then
+
+        # Start secondary backups, if desired
+        if [ "$EXTRA_BACKUPS" != "" ]; then
+          echo "Starting extra backups for run $RUN..."
+          for s in $EXTRA_BACKUPS; do
+            CMD="$RAMCLOUD_BIN/server \
+                -C $COORD_LOCATOR \
+                -L $TRANSPORT:host=192.168.1.1$s,port=14243 \
+                --clusterName=__unnamed__ \
+                -f /dev/sdb2 \
+                --segmentFrames 12000 \
+                --maxNonVolatileBuffers 20 \
+                --detectFailures 0 \
+                --timeout 10000 \
+                -r 3 \
+                -t $SERVER_MEMORY \
+                -E 3 \
+                -w 1 \
+                --masterServiceThreads 1 \
+                --logCleanerThreads 2 \
+                --cleanerBalancer=tombstoneRatio:0.40 \
+                --preferredIndex=$((s+100)) \
+                --backupOnly \
+                > $LOG_SUBDIR/backup-rc$s.log 2>&1"
+            ssh rc$s "$CMD" > /dev/null 2>&1 &
+          NUM_BACKUPS=$((NUM_BACKUPS + 1))
+          done
+        fi
+
+        if $RAMCLOUD_BIN/ensureServers -C $COORD_LOCATOR \
+            --masters $NUM_MASTERS --backups $NUM_BACKUPS --wait 20 \
+            > $LOG_SUBDIR/ensureServers.log 2>&1; then
           true
         else
           echo "Cluster didn't startup correctly; see $LOG_SUBDIR/ensureServers.log"
           ssh rc$COORDINATOR pkill coordinator
-          for s in $SERVERS; do
+          for s in "$SERVERS $EXTRA_BACKUPS"; do
             ssh rc$s pkill server
           done
           exit 1
@@ -103,6 +142,16 @@ for TRANSPORT in $TRANSPORTS; do
         ./helper $COORD_LOCATOR logMessage NOTICE \
             "**** Finished filling the key-value store"
 
+        # Figure out which of the clients to use
+        COUNT=0
+        USE_CLIENTS=""
+        for CLIENT in $CLIENTS; do
+          if [ $COUNT -lt $CLIENT_COUNT ]; then
+            USE_CLIENTS="$USE_CLIENTS $CLIENT"
+          fi
+          COUNT=$((COUNT + 1))
+        done
+
         # Run the measurement workloads
         for WORKLOAD in $WORKLOADS; do
           echo "Running workload $WORKLOAD for run $RUN..."
@@ -110,14 +159,14 @@ for TRANSPORT in $TRANSPORTS; do
               "**** Running workload $WORKLOAD for run $RUN"
           mkdir $LOG_SUBDIR/workload$WORKLOAD
           ./run.sh $WD $LOG_SUBDIR/workload$WORKLOAD $COORD_LOCATOR \
-              workload${WORKLOAD} "$CLIENTS"
+              workload${WORKLOAD} "$USE_CLIENTS"
         done
         ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
 
         # Kill all servers
         echo "Killing servers for run $RUN..."
         ssh rc$COORDINATOR pkill coordinator
-        for s in $SERVERS; do
+        for s in $SERVERS $EXTRA_BACKUPS; do
           ssh rc$s pkill server
         done
 
