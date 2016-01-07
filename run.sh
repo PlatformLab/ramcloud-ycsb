@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This script runs one YCSB benchmark on a cluster that has already been
 # set up.
@@ -38,9 +38,9 @@ $WD/helper $COORD getStats > $PERF_BEFORE
 # be asked to dump a time trace to its log.
 SECS_BEFORE_TIME_TRACE_DUMP=40
 
-# Uncomment the following line to arrange for a time trace dumpn on
+# Uncomment the following line to arrange for a time trace dump on
 # all servers partway through the run
-(sleep $SECS_BEFORE_TIME_TRACE_DUMP && $WD/helper $COORD logTimeTrace) &
+# $WD/helper $COORD logTimeTrace $SECS_BEFORE_TIME_TRACE_DUMP &
 
 # Find the last client name, so we can treat it specially.
 for CLIENT in $CLIENTS; do LAST_CLIENT=$CLIENT; done
@@ -56,7 +56,7 @@ for CLIENT in $CLIENTS; do
   else
     ssh rc$CLIENT $CMD >/dev/null 2>&1 &
   fi
-  usleep 1000
+  sleep .001
 done
 
 $WD/helper $COORD getStats > $PERF_AFTER
@@ -64,6 +64,6 @@ $WD/diffPerfStats.py $PERF_BEFORE $PERF_AFTER > $LOG_DIR/perfStats
 
 # In case the time trace dumper didn't already finish, kill it so
 # it doesn't hang around and cause trouble later.
-pkill helper > /dev/null 2>&1
+pkill helper &> /dev/null
 
 ./waitClients.sh $LOGS

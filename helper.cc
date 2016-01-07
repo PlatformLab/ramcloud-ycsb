@@ -31,7 +31,7 @@ void printHelp(char* program) {
     printf("Usage:\n");
     printf("    %s coordinatorLocator getStats\n", program);
     printf("    %s coordinatorLocator logMessage level message\n", program);
-    printf("    %s coordinatorLocator logTimeTrace\n", program);
+    printf("    %s coordinatorLocator logTimeTrace delaySeconds\n", program);
 }
 
 int main(int argc, char *argv[])
@@ -126,6 +126,15 @@ int main(int argc, char *argv[])
         }
         cluster.logMessageAll(level, "%s", message);
     } else if (strcmp("logTimeTrace", command) == 0) {
+        if (argc != 4) {
+            printHelp(argv[0]);
+            exit(1);
+        }
+        uint32_t delaySeconds = 0;
+        sscanf(argv[3], "%u", &delaySeconds);
+        if (delaySeconds > 0) {
+            sleep(delaySeconds);
+        }
         cluster.serverControlAll(WireFormat::LOG_TIME_TRACE);
     } else {
         printHelp(argv[0]);

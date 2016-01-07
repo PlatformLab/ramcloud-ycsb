@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This shell script uses YCSB benchmark A to load the database for YCSB.
 
@@ -34,7 +34,7 @@ for CLIENT in $CLIENTS; do
         1000000 > $LOG 2>&1 &
   fi
   ((START=START+1000000))
-  usleep 10000
+  sleep .01
   done
 
 ./waitClients.sh $LOGS

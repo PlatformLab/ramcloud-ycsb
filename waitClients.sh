@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This shell script waits for one or more YCSB clients to finish
 # processing. If they don't finish within a reasonable amount of time,
@@ -15,7 +15,7 @@ for ((COUNT=30; COUNT>0; COUNT--)); do
     if [ $LINES -ne 2 ]; then
       STATUS=problem
       if [ $COUNT -eq 1 ]; then
-        echo "WARNING: client appears not to have completed "
+        echo "WARNING: client appears not to have completed " \
             "successfully; check $LOG"
       fi
     fi

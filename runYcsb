@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This is the top-level script that runs one or more of the YCSB benchmarks
 # on RAMCloud.  This script is somewhat brittle right now: not much error
 # handling, hardwired configuration information, etc.
@@ -16,18 +16,18 @@
 #                   before d (not sure why)
 # RUNS:             How many different runs to carry out with each setting
 
-TRANSPORTS="infrc"
-SERVER_MEMORIES="1680"
+TRANSPORTS="infrc basic"
+SERVER_MEMORIES="1450"
 CLIENT_COUNTS="24"
-WORKLOADS="a"
+WORKLOADS="a b c f"
 RUNS=1
 
-# Machines to use for the runs ("xx" means "rcxx").
-COORDINATOR="60"
-SERVERS=`for i in {61..72}; do echo $i; done`
-FILL_CLIENTS=`for i in {30..39}; do echo $i; done`
-CLIENTS="`for i in {30..44}; do echo $i; done`"
-CLIENTS="$CLIENTS `for i in {46..54}; do echo $i; done`"
+# Machines to use for the runs ("xx" means "rcxx").  Make sure that enough
+# clients have been specified to cover the CLIENT_COUNTS values above.
+COORDINATOR="42"
+SERVERS=`for i in {30..41}; do echo $i; done`
+FILL_CLIENTS=`for i in {43..52}; do echo $i; done`
+CLIENTS=`for i in {43..69}; do echo $i; done`
 
 # Uncomment the following line to start up an extra backup on the
 # given servers.
@@ -50,12 +50,22 @@ rm $TOP_LOG_DIR/latest
 ln -s $LOG_DIR $TOP_LOG_DIR/latest
 
 for TRANSPORT in $TRANSPORTS; do
+  if [ "$TRANSPORT" = "basic" ]; then
+    COORD_LOCATOR="basic+udp:host=192.168.1.1$COORDINATOR,port=14246"
+    LOCATOR_BASE="basic+infud:rttMicros=25,gbs=30,"
+  elif [ "$TRANSPORT" = "infrc" ]; then
+    COORD_LOCATOR="infrc:host=192.168.1.1$COORDINATOR,port=14246"
+    LOCATOR_BASE="infrc:"
+  else
+    echo Unsupported transport $TRANSPORT
+    exit 1
+  fi
+
   for SERVER_MEMORY in $SERVER_MEMORIES; do
     for ((RUN=1; RUN<=$RUNS; RUN++)); do
       for CLIENT_COUNT in $CLIENT_COUNTS; do
         LOG_SUBDIR="$LOG_DIR/$TRANSPORT""_$SERVER_MEMORY""_$CLIENT_COUNT""clients_run$RUN"
         mkdir -p $LOG_SUBDIR
-        COORD_LOCATOR="$TRANSPORT:host=192.168.1.1$COORDINATOR,port=14246"
 
         # Start Servers
         echo "Starting coordinator for run $RUN..."
@@ -72,10 +82,10 @@ for TRANSPORT in $TRANSPORTS; do
         for s in $SERVERS; do
           CMD="$RAMCLOUD_BIN/server \
               -C $COORD_LOCATOR \
-              -L $TRANSPORT:host=192.168.1.1$s,port=14242 \
+              -L ${LOCATOR_BASE}host=192.168.1.1$s,port=14242 \
               --clusterName=__unnamed__ \
               -f /dev/sda2 \
-              --segmentFrames 12000 \
+              --segmentFrames 11000 \
               --maxNonVolatileBuffers 20 \
               --detectFailures 0 \
               --timeout 10000 \
@@ -83,7 +93,7 @@ for TRANSPORT in $TRANSPORTS; do
               -t $SERVER_MEMORY \
               -E 3 \
               -w 1 \
-              --masterServiceThreads 1 \
+              --maxCores 4 \
               --logCleanerThreads 2 \
               --cleanerBalancer=tombstoneRatio:0.40 \
               --preferredIndex=$s \
@@ -99,10 +109,10 @@ for TRANSPORT in $TRANSPORTS; do
           for s in $EXTRA_BACKUPS; do
             CMD="$RAMCLOUD_BIN/server \
                 -C $COORD_LOCATOR \
-                -L $TRANSPORT:host=192.168.1.1$s,port=14243 \
+                -L ${LOCATOR_BASE}host=192.168.1.1$s,port=14243 \
                 --clusterName=__unnamed__ \
                 -f /dev/sdb2 \
-                --segmentFrames 12000 \
+                --segmentFrames 11000 \
                 --maxNonVolatileBuffers 20 \
                 --detectFailures 0 \
                 --timeout 10000 \
@@ -110,7 +120,7 @@ for TRANSPORT in $TRANSPORTS; do
                 -t $SERVER_MEMORY \
                 -E 3 \
                 -w 1 \
-                --masterServiceThreads 1 \
+                --maxCores 4 \
                 --logCleanerThreads 2 \
                 --cleanerBalancer=tombstoneRatio:0.40 \
                 --preferredIndex=$((s+100)) \
