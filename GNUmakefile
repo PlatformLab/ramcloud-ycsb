@@ -15,7 +15,7 @@ JAVA_DIR := YCSB/ramcloud/src/main/java/com/yahoo/ycsb/db
 
 all: helper $(JAVA_DIR)/RamCloudClient.class
 helper: helper.cc $(RAMCLOUD_DIR)/bin/libramcloud.so
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LIBS) helper.cc -o helper -Wl,-rpath=$(BIN_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) helper.cc -o helper $(LIBS) -Wl,-rpath=$(BIN_DIR)
 
 CP := $(RAMCLOUD_DIR)/lib/ramcloud/ramcloud.jar:YCSB/core/target/core-0.1.4.jar
 
