@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * efficient field generation, and to allow backend drivers that can stream
  * fields (instead of materializing them in RAM) to do so.
  * <p>
- * YCSB originially used String objects to represent field values.  This led to
+ * YCSB originally used String objects to represent field values.  This led to
  * two performance issues.
  * </p><p>
  * First, it leads to unnecessary conversions between UTF-16 and UTF-8, both
