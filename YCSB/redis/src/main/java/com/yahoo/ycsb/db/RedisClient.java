@@ -146,7 +146,7 @@ System.out.println("-- Using modified RedisClient --");
     }
 
     // Jedis and ShardedJedis don't have a common interface we can use to make
-    // them perfectly interchangable. JedisCommands is close, but in 2.1.0 it
+    // them perfectly interchangeable. JedisCommands is close, but in 2.1.0 it
     // omits a definition for 'del'.
     //
     // This hackery should be wrapped up in its own class.
