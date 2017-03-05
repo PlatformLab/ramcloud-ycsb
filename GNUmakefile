@@ -5,17 +5,17 @@
 # which refers to the top-level RAMCloud install directory (i.e., a
 # directory containing bin, include, and lib subdirectories)
 RAMCLOUD_DIR := ./ramcloud
-BIN_DIR := $(RAMCLOUD_DIR)/bin
+LIB_DIR := $(RAMCLOUD_DIR)/lib/ramcloud
 
 INCLUDES := -I$(RAMCLOUD_DIR)/include -I.
 CXXFLAGS := --std=c++0x -g -DNDEBUG
 CXX ?= g++
-LIBS := -L$(RAMCLOUD_DIR)/bin -lramcloud
+LIBS := -L$(RAMCLOUD_DIR)/lib/ramcloud -lramcloud
 JAVA_DIR := YCSB/ramcloud/src/main/java/com/yahoo/ycsb/db
 
 all: helper $(JAVA_DIR)/RamCloudClient.class
-helper: helper.cc $(RAMCLOUD_DIR)/bin/libramcloud.so
-	$(CXX) $(CXXFLAGS) $(INCLUDES) helper.cc -o helper $(LIBS) -Wl,-rpath=$(BIN_DIR)
+helper: helper.cc $(LIB_DIR)/libramcloud.so
+	$(CXX) $(CXXFLAGS) $(INCLUDES) helper.cc -o helper $(LIBS) -Wl,-rpath=$(LIB_DIR)
 
 CP := $(RAMCLOUD_DIR)/lib/ramcloud/ramcloud.jar:YCSB/core/target/core-0.1.4.jar
 

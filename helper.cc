@@ -20,6 +20,7 @@
 
 #include "ramcloud/PerfStats.h"
 #include "ramcloud/RamCloud.h"
+#include "ramcloud/ClientException.h"
 
 using namespace RAMCloud;
 
