@@ -8,7 +8,7 @@
 # Each argument is the name of a log file which will contain information
 # indicating proper completion.
 
-for ((COUNT=30; COUNT>0; COUNT--)); do
+for ((COUNT=3000; COUNT>0; COUNT--)); do
   STATUS=ok
   for LOG in $*; do
     LINES=`grep -c OVERALL $LOG`

@@ -36,7 +36,7 @@ def scanRuns(logDir, transport, memorySize, clientCount):
     print("Throughput for transport %s, memory size %s, %d clients:" %
             (transport, memorySize, clientCount))
     print("Workload Runs   Average      Min      Max")
-    for workload in ["a", "b", "c", "d", "f"]:
+    for workload in ["a", "b", "c", "d", "f", "i"]:
         totals = []
         for run in range(1, 1000):
             # Get a list of the log file names for all of the clients
