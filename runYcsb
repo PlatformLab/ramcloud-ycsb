@@ -29,6 +29,22 @@ SERVERS=`for i in {30..41}; do echo $i; done`
 FILL_CLIENTS=`for i in {43..45} {63..69}; do echo $i; done`
 CLIENTS=`for i in {43..45} {47..61} {63..69}; do echo $i; done`
 
+# Clean the coordinator, servers, and clients when receive SIGINT
+function sigint_handler() {
+  echo "Stop coordinator: rc${COORDINATOR}"
+  sshpass -p "${rootPWD}" ssh root@rc${COORDINATOR} "kill -s SIGTERM \$(pidof coordinator)"
+  for s in $SERVERS; do
+    echo "Stop server: rc$s"
+    sshpass -p "${rootPWD}" ssh root@rc$s "kill -s SIGTERM \$(pidof server)"
+  done
+  for s in $CLIENTS; do
+    echo "Stop client: rc$s"
+    sshpass -p "${rootPWD}" ssh root@rc$s "kill -s SIGTERM \$(pidof java)"
+  done
+  exit 0
+}
+trap 'sigint_handler' 2
+
 # Uncomment the following line to start up an extra backup on the
 # given servers.
 # EXTRA_BACKUPS="69 70 71 72 73 74 75 76 77 78 79 80"
