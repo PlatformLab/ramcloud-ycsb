@@ -32,14 +32,16 @@ CLIENTS=`for i in {43..45} {47..61} {63..69}; do echo $i; done`
 # Clean the coordinator, servers, and clients when receive SIGINT
 function sigint_handler() {
   echo "Stop coordinator: rc${COORDINATOR}"
-  sshpass -p "${rootPWD}" ssh root@rc${COORDINATOR} "kill -s SIGTERM \$(pidof coordinator)"
-  for s in $SERVERS; do
-    echo "Stop server: rc$s"
-    sshpass -p "${rootPWD}" ssh root@rc$s "kill -s SIGTERM \$(pidof server)"
+  ssh rc$COORDINATOR pkill coordinator
+
+  for s in $SERVERS $EXTRA_BACKUPS; do
+     echo "Stop server: rc$s"
+    ssh rc$s pkill server
   done
+
   for s in $CLIENTS; do
     echo "Stop client: rc$s"
-    sshpass -p "${rootPWD}" ssh root@rc$s "kill -s SIGTERM \$(pidof java)"
+    ssh rc$s pkill java
   done
   exit 0
 }
