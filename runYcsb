@@ -33,6 +33,24 @@ CLIENTS=`for i in {43..69}; do echo $i; done`
 # given servers.
 # EXTRA_BACKUPS="69 70 71 72 73 74 75 76 77 78 79 80"
 
+# Clean the coordinator, servers, and clients when receive SIGINT
+function sigint_handler() {
+  echo "Stop coordinator: rc${COORDINATOR}"
+  ssh rc$COORDINATOR pkill coordinator
+
+  for s in $SERVERS $EXTRA_BACKUPS; do
+     echo "Stop server: rc$s"
+    ssh rc$s pkill server
+  done
+
+  for s in $CLIENTS; do
+    echo "Stop client: rc$s"
+    ssh rc$s pkill java
+  done
+  exit 0
+}
+trap 'sigint_handler' 2
+
 # Top-level directory in which log subdirectories will be created.
 TOP_LOG_DIR="logs"
 
@@ -138,7 +156,7 @@ for TRANSPORT in $TRANSPORTS; do
         else
           echo "Cluster didn't startup correctly; see $LOG_SUBDIR/ensureServers.log"
           ssh rc$COORDINATOR pkill coordinator
-          for s in "$SERVERS $EXTRA_BACKUPS"; do
+          for s in $SERVERS $EXTRA_BACKUPS; do
             ssh rc$s pkill server
           done
           exit 1
