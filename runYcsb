@@ -158,7 +158,7 @@ for TRANSPORT in $TRANSPORTS; do
         else
           echo "Cluster didn't startup correctly; see $LOG_SUBDIR/ensureServers.log"
           ssh rc$COORDINATOR pkill coordinator
-          for s in "$SERVERS $EXTRA_BACKUPS"; do
+          for s in $SERVERS $EXTRA_BACKUPS; do
             ssh rc$s pkill server
           done
           exit 1
