@@ -39,7 +39,7 @@ function sigint_handler() {
   ssh rc$COORDINATOR pkill coordinator
 
   for s in $SERVERS $EXTRA_BACKUPS; do
-     echo "Stop server: rc$s"
+    echo "Stop server: rc$s"
     ssh rc$s pkill server
   done
 
