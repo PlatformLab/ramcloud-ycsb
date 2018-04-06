@@ -17,17 +17,18 @@
 # RUNS:             How many different runs to carry out with each setting
 
 TRANSPORTS="infrc basic"
-SERVER_MEMORIES="1450"
-CLIENT_COUNTS="24"
+SERVER_MEMORIES="20000"
+CLIENT_COUNTS="15"
 WORKLOADS="a b c f"
 RUNS=1
 
 # Machines to use for the runs ("xx" means "rcxx").  Make sure that enough
 # clients have been specified to cover the CLIENT_COUNTS values above.
-COORDINATOR="42"
-SERVERS=`for i in {30..41}; do echo $i; done`
-FILL_CLIENTS=`for i in {43..52}; do echo $i; done`
-CLIENTS=`for i in {43..69}; do echo $i; done`
+# NOTE: Avoid rc47; it seems to have problematic hardware.
+COORDINATOR="19"
+SERVERS=`for i in {20..31}; do echo $i; done`
+FILL_CLIENTS=`for i in {32..46}; do echo $i; done`
+CLIENTS=`for i in {32..46}; do echo $i; done`
 
 # Uncomment the following line to start up an extra backup on the
 # given servers.
