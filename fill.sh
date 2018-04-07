@@ -16,17 +16,17 @@ LOGS=""
 START="0"
 for CLIENT in $CLIENTS; do LAST_CLIENT=$CLIENT; done
 for CLIENT in $CLIENTS; do
-  LOG=$LOG_DIR/fill-rc$CLIENT.log
+  LOG=$LOG_DIR/fill-$CLIENT.log
   LOGS="$LOGS $LOG"
   if (($CLIENT == $LAST_CLIENT)); then
-    ssh rc$CLIENT \
+    ssh $CLIENT \
         $WD/rc-ycsb.sh workloada \
         10000000 \
         $COORD \
         $START \
         1000000 > $LOG 2>&1
   else
-    ssh rc$CLIENT \
+    ssh $CLIENT \
         $WD/rc-ycsb.sh workloada \
         10000000 \
         $COORD \

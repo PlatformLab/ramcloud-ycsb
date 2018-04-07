@@ -16,37 +16,35 @@
 #                   before d (not sure why)
 # RUNS:             How many different runs to carry out with each setting
 
-TRANSPORTS="infrc basic"
+TRANSPORTS="dpdk"
 SERVER_MEMORIES="20000"
-CLIENT_COUNTS="15"
-WORKLOADS="a b c f"
+CLIENT_COUNTS="1"
+# WORKLOADS="a b c f"
+WORKLOADS="a"
 RUNS=1
 
-# Machines to use for the runs ("xx" means "rcxx").  Make sure that enough
-# clients have been specified to cover the CLIENT_COUNTS values above.
-# NOTE: Avoid rc47; it seems to have problematic hardware.
-COORDINATOR="19"
-SERVERS=`for i in {20..31}; do echo $i; done`
-FILL_CLIENTS=`for i in {32..46}; do echo $i; done`
-CLIENTS=`for i in {32..46}; do echo $i; done`
-
-# Uncomment the following line to start up an extra backup on the
-# given servers.
-# EXTRA_BACKUPS="69 70 71 72 73 74 75 76 77 78 79 80"
+# Machines to use for the runs. Please provide IP addresses for the control
+# network.
+COORDINATOR="128.110.153.69"
+SERVERS="ms0922 ms0902 ms0930 ms0921 ms0939 ms0917 ms0937 ms0936 ms0942 ms0927 ms0903"
+CLIENTS="ms0909 ms0935 ms0926 ms0919 ms0906 ms0928 ms0943 ms0901 ms0934 ms0925 ms0912 ms0915 ms0929 ms0940 ms0923"
 
 # Clean the coordinator, servers, and clients when receive SIGINT
 function sigint_handler() {
-  echo "Stop coordinator: rc${COORDINATOR}"
-  ssh rc$COORDINATOR pkill coordinator
+  echo "Stop coordinator: ${COORDINATOR}"
+  ssh $COORDINATOR sudo pkill coordinator
+  ssh $COORDINATOR sudo rm -f /dev/hugepages/*
 
-  for s in $SERVERS $EXTRA_BACKUPS; do
-    echo "Stop server: rc$s"
-    ssh rc$s pkill server
+  for s in $SERVERS; do
+    echo "Stop server: $s"
+    ssh $s sudo pkill server
+    ssh $s sudo rm -f /dev/hugepages/*
   done
 
   for s in $CLIENTS; do
-    echo "Stop client: rc$s"
-    ssh rc$s pkill java
+    echo "Stop client: $s"
+    ssh $s sudo pkill java
+    ssh $s sudo rm -f /dev/hugepages/*
   done
   exit 0
 }
@@ -69,12 +67,9 @@ rm $TOP_LOG_DIR/latest
 ln -s $LOG_DIR $TOP_LOG_DIR/latest
 
 for TRANSPORT in $TRANSPORTS; do
-  if [ "$TRANSPORT" = "basic" ]; then
-    COORD_LOCATOR="basic+udp:host=192.168.1.1$COORDINATOR,port=14246"
-    LOCATOR_BASE="basic+infud:rttMicros=25,gbs=30,"
-  elif [ "$TRANSPORT" = "infrc" ]; then
-    COORD_LOCATOR="infrc:host=192.168.1.1$COORDINATOR,port=14246"
-    LOCATOR_BASE="infrc:"
+  if [ "$TRANSPORT" = "dpdk" ]; then
+    COORD_LOCATOR="basic+udp:host=$COORDINATOR,port=14246"
+    LOCATOR="basic+dpdk:"
   else
     echo Unsupported transport $TRANSPORT
     exit 1
@@ -88,22 +83,23 @@ for TRANSPORT in $TRANSPORTS; do
 
         # Start Servers
         echo "Starting coordinator for run $RUN..."
-          CMD="$RAMCLOUD_BIN/coordinator \
+          CMD="sudo $RAMCLOUD_BIN/coordinator \
             -C $COORD_LOCATOR \
             -d 10000 \
             --clusterName=__unnamed__ \
             > $LOG_SUBDIR/coordinator.log 2>&1"
-        ssh rc$COORDINATOR "$CMD" > /dev/null 2>&1 &
+        ssh $COORDINATOR "$CMD" > /dev/null 2>&1 &
 
         echo "Starting servers for run $RUN..."
         NUM_BACKUPS="0"
         NUM_MASTERS="0"
         for s in $SERVERS; do
-          CMD="$RAMCLOUD_BIN/server \
+          CMD="sudo $RAMCLOUD_BIN/server \
               -C $COORD_LOCATOR \
-              -L ${LOCATOR_BASE}host=192.168.1.1$s,port=14242 \
+              -L ${LOCATOR} \
               --clusterName=__unnamed__ \
-              -f /dev/sda2 \
+              --dpdkPort 1 \
+              -f /dev/nvme0n1
               --segmentFrames 11000 \
               --maxNonVolatileBuffers 20 \
               --detectFailures 0 \
@@ -112,43 +108,15 @@ for TRANSPORT in $TRANSPORTS; do
               -t $SERVER_MEMORY \
               -E 3 \
               -w 1 \
-              --maxCores 4 \
+              --maxCores 16 \
               --logCleanerThreads 2 \
               --cleanerBalancer=tombstoneRatio:0.40 \
-              --preferredIndex=$s \
-              > $LOG_SUBDIR/server-rc$s.log 2>&1"
-          ssh rc$s "$CMD" > /dev/null 2>&1 &
+              --preferredIndex $((NUM_MASTERS + 1)) \
+              > $LOG_SUBDIR/server-$s.log 2>&1"
+          ssh $s "$CMD" > /dev/null 2>&1 &
           NUM_MASTERS=$((NUM_MASTERS + 1))
           NUM_BACKUPS=$((NUM_BACKUPS + 1))
         done
-
-        # Start secondary backups, if desired
-        if [ "$EXTRA_BACKUPS" != "" ]; then
-          echo "Starting extra backups for run $RUN..."
-          for s in $EXTRA_BACKUPS; do
-            CMD="$RAMCLOUD_BIN/server \
-                -C $COORD_LOCATOR \
-                -L ${LOCATOR_BASE}host=192.168.1.1$s,port=14243 \
-                --clusterName=__unnamed__ \
-                -f /dev/sdb2 \
-                --segmentFrames 11000 \
-                --maxNonVolatileBuffers 20 \
-                --detectFailures 0 \
-                --timeout 10000 \
-                -r 3 \
-                -t $SERVER_MEMORY \
-                -E 3 \
-                -w 1 \
-                --maxCores 4 \
-                --logCleanerThreads 2 \
-                --cleanerBalancer=tombstoneRatio:0.40 \
-                --preferredIndex=$((s+100)) \
-                --backupOnly \
-                > $LOG_SUBDIR/backup-rc$s.log 2>&1"
-            ssh rc$s "$CMD" > /dev/null 2>&1 &
-          NUM_BACKUPS=$((NUM_BACKUPS + 1))
-          done
-        fi
 
         if $RAMCLOUD_BIN/ensureServers -C $COORD_LOCATOR \
             --masters $NUM_MASTERS --backups $NUM_BACKUPS --wait 20 \
@@ -156,9 +124,9 @@ for TRANSPORT in $TRANSPORTS; do
           true
         else
           echo "Cluster didn't startup correctly; see $LOG_SUBDIR/ensureServers.log"
-          ssh rc$COORDINATOR pkill coordinator
-          for s in $SERVERS $EXTRA_BACKUPS; do
-            ssh rc$s pkill server
+          ssh $COORDINATOR sudo pkill coordinator
+          for s in $SERVERS; do
+            ssh $s sudo pkill server
           done
           exit 1
         fi
@@ -167,7 +135,7 @@ for TRANSPORT in $TRANSPORTS; do
         echo "Filling the key-value store for run $RUN..."
         ./helper $COORD_LOCATOR logMessage NOTICE \
             "**** Filling the key-value store for run $RUN"
-        ./fill.sh $WD $COORD_LOCATOR $LOG_SUBDIR "$FILL_CLIENTS"
+        ./fill.sh $WD $COORD_LOCATOR $LOG_SUBDIR "$CLIENTS"
         ./helper $COORD_LOCATOR logMessage NOTICE \
             "**** Finished filling the key-value store"
 
@@ -194,9 +162,9 @@ for TRANSPORT in $TRANSPORTS; do
 
         # Kill all servers
         echo "Killing servers for run $RUN..."
-        ssh rc$COORDINATOR pkill coordinator
-        for s in $SERVERS $EXTRA_BACKUPS; do
-          ssh rc$s pkill server
+        ssh $COORDINATOR sudo pkill coordinator
+        for s in $SERVERS; do
+          ssh $s sudo pkill server
         done
 
         # Leave a bit of time for servers to really exit before the next run
