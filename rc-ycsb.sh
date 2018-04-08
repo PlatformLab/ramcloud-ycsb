@@ -48,7 +48,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p recordcount=${RECORDS} \
       -p operationcount=${RECORDS} \
       -p requestdistribution=uniform \
-      -threads 8
+      -threads 1
 else
   java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD} -load \
@@ -58,5 +58,5 @@ else
       -p operationcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
-      -threads 8
+      -threads 1
 fi
