@@ -47,14 +47,14 @@ for CLIENT in $CLIENTS; do LAST_CLIENT=$CLIENT; done
 
 LOGS=""
 for CLIENT in $CLIENTS; do
-  LOG=$LOG_DIR/client-rc$CLIENT.log
+  LOG=$LOG_DIR/client-$CLIENT.log
   LOGS="$LOGS $LOG"
   CMD="sh $WD/rc-ycsb.sh ${WORKLOAD} 10000000 $COORD \
-       > $LOG_DIR/client-rc$CLIENT.log 2>&1"
+       > $LOG_DIR/client-$CLIENT.log 2>&1"
   if [ $CLIENT == $LAST_CLIENT ]; then
-    ssh rc$CLIENT $CMD >/dev/null 2>&1
+    ssh $CLIENT $CMD >/dev/null 2>&1
   else
-    ssh rc$CLIENT $CMD >/dev/null 2>&1 &
+    ssh $CLIENT $CMD >/dev/null 2>&1 &
   fi
   sleep .001
 done
