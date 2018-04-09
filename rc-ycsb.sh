@@ -1,21 +1,22 @@
 #!/bin/bash
 # This script runs a single YCSB client on a previously setup RAMCloud cluster.
 
-if [ $# -ne 3 -a $# -ne 5 ]; then
-  echo "Usage: $0 workload records coordLocator [insertstart insertcount]"
+if [ $# -ne 4 -a $# -ne 6 ]; then
+  >&2 echo "Usage: $0 workload records coordLocator throughput [insertstart insertcount]"
   exit 1
 fi
 
 WORKLOAD=$1
 RECORDS=$2
 COORD=$3
+THROUGHPUT=$4
 
 DIR=$(readlink -f $(dirname $0))
 cd $DIR/YCSB
 
-if [ $# -eq 5 ]; then
-  INSERT_START=$4
-  INSERT_COUNT=$5
+if [ $# -eq 6 ]; then
+  INSERT_START=$5
+  INSERT_COUNT=$6
   echo "Insert Start: $INSERT_START, Insert Count: $INSERT_COUNT"
 fi
 
@@ -43,13 +44,14 @@ export CP
 DB=com.yahoo.ycsb.db.RamCloudClient
 if [ "$INSERT_COUNT" = "" ]; then
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
-      -P workloads/${WORKLOAD} -t \
+      -P workloads/${WORKLOAD}  \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=24 \
       -p recordcount=${RECORDS} \
       -p operationcount=${RECORDS} \
       -p requestdistribution=uniform \
       -threads 1 \
+      -target $THROUGHPUT \
       -s
 else
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
@@ -61,5 +63,6 @@ else
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
       -threads 1 \
+      -target $THROUGHPUT \
       -s
 fi
