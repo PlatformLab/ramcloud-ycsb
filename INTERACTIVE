@@ -1,0 +1,7 @@
+Start RAMCloud manually using cluster.py
+
+    scripts/cluster.py --verbose 
+
+Sample command line after setting up RAMCloud using cluster.py.
+
+    ./rc-ycsb.sh workloada 1000000 basic+udp:host=192.168.1.160,port=12246 > /tmp/Output
