@@ -10,7 +10,7 @@ WORKLOAD=$1
 RECORDS=$2
 COORD=$3
 
-DIR=$(dirname $0)
+DIR=$(readlink -f $(dirname $0))
 cd $DIR/YCSB
 
 if [ $# -eq 5 ]; then
@@ -36,21 +36,23 @@ CP="$CP:$DIR/YCSB/nosqldb/src/main/conf"
 CP="$CP:$DIR/YCSB/gemfire/src/main/conf"
 CP="$CP:$DIR/YCSB/core/target/core-0.1.4.jar"
 CP="$CP:$DIR/YCSB/jdbc/src/main/conf"
-CP="$CP:/$DIR/YCSB/ramcloud/src/main/java"
+CP="$CP:$DIR/YCSB/ramcloud/src/main/java"
 CP="$CP:$DIR/ramcloud/lib/ramcloud/ramcloud.jar"
+export CP
 
 DB=com.yahoo.ycsb.db.RamCloudClient
 if [ "$INSERT_COUNT" = "" ]; then
-  java -cp $CP com.yahoo.ycsb.Client -db $DB \
+ java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD} -t \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=24 \
       -p recordcount=${RECORDS} \
       -p operationcount=${RECORDS} \
       -p requestdistribution=uniform \
-      -threads 1
+      -threads 1 \
+      -s
 else
-  java -cp $CP com.yahoo.ycsb.Client -db $DB \
+ java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD} -load \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=24 \
@@ -58,5 +60,6 @@ else
       -p operationcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
-      -threads 1
+      -threads 1 \
+      -s
 fi
