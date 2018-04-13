@@ -46,7 +46,7 @@ if [ "$INSERT_COUNT" = "" ]; then
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD}  \
       -p ramcloud.coordinatorLocator=${COORD} \
-      -p ramcloud.tableServerSpan=1 \
+      -p ramcloud.tableServerSpan=12 \
       -p recordcount=${RECORDS} \
       -p operationcount=${RECORDS} \
       -p requestdistribution=uniform \
@@ -57,7 +57,7 @@ else
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD} -load \
       -p ramcloud.coordinatorLocator=${COORD} \
-      -p ramcloud.tableServerSpan=1 \
+      -p ramcloud.tableServerSpan=12 \
       -p recordcount=${RECORDS} \
       -p operationcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
