@@ -1,6 +1,6 @@
 Start RAMCloud manually using cluster.py
 
-    scripts/cluster.py --verbose 
+    scripts/cluster.py --verbose -s 12 --transport=basic+dpdk --dpdkPort 1 --superuser --masterArgs '--totalMasterMemory 45000 --segmentFrames 4000 --maxCores 8'
 
 Sample command line after setting up RAMCloud using cluster.py.
 
