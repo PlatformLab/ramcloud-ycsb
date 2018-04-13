@@ -58,10 +58,8 @@ else
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
       -p recordcount=${RECORDS} \
-      -p operationcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
       -threads 1 \
-      -t \
       -s
 fi
