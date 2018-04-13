@@ -47,7 +47,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
       -p recordcount=${RECORDS} \
-      -p operationcount=${RECORDS} \
+      -p operationcount=1000000 \
       -p requestdistribution=uniform \
       -threads 1 \
       -t \
