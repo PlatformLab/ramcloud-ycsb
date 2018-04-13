@@ -9,6 +9,7 @@ fi
 WORKLOAD=$1
 RECORDS=$2
 COORD=$3
+NUM_OPERATIONS=1000000
 
 DIR=$(readlink -f $(dirname $0))
 cd $DIR/YCSB
@@ -47,7 +48,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
       -p recordcount=${RECORDS} \
-      -p operationcount=1000000 \
+      -p operationcount=${NUM_OPERATIONS} \
       -p requestdistribution=uniform \
       -threads 1 \
       -t \
