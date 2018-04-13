@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script runs a single YCSB client on a previously setup RAMCloud cluster.
 
-if [ $# -ne 4 -a $# -ne 6 ]; then
+if [ $# -ne 3 -a $# -ne 5 ]; then
   >&2 echo "Usage: $0 workload records coordLocator throughput [insertstart insertcount]"
   exit 1
 fi
@@ -9,14 +9,13 @@ fi
 WORKLOAD=$1
 RECORDS=$2
 COORD=$3
-THROUGHPUT=$4
 
 DIR=$(readlink -f $(dirname $0))
 cd $DIR/YCSB
 
-if [ $# -eq 6 ]; then
-  INSERT_START=$5
-  INSERT_COUNT=$6
+if [ $# -eq 5 ]; then
+  INSERT_START=$4
+  INSERT_COUNT=$5
   echo "Insert Start: $INSERT_START, Insert Count: $INSERT_COUNT"
 fi
 
@@ -51,7 +50,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p operationcount=${RECORDS} \
       -p requestdistribution=uniform \
       -threads 1 \
-      -target $THROUGHPUT \
+      -t \
       -s
 else
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
@@ -63,6 +62,6 @@ else
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
       -threads 1 \
-      -target $THROUGHPUT \
+      -t \
       -s
 fi
