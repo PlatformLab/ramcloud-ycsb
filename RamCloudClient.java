@@ -56,6 +56,7 @@ public class RamCloudClient extends DB {
     public static final String LOCATOR_PROPERTY = "ramcloud.coordinatorLocator";
     public static final String TABLE_SERVER_SPAN_PROPERTY = "ramcloud.tableServerSpan";
     public static final String DEBUG_PROPERTY = "ramcloud.debug";
+    public static final String LOG_FILE_PROPERTY = "ramcloud.logFile";
 
     /// Success is always 0. 
     public static final int OK = 0;
@@ -227,6 +228,9 @@ public class RamCloudClient extends DB {
         if (debug)
             System.err.println("RamCloudClient connecting to " + locator + " ...");
         ramcloud = new RAMCloud(locator);
+        if (props.getProperty(LOG_FILE_PROPERTY) != null) {
+            ramcloud.setLogFile(props.getProperty(LOG_FILE_PROPERTY));
+        }
         tableIds = new HashMap<String, Long>();
     }
 
