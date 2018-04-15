@@ -12,6 +12,7 @@ COORD=$3
 NUM_OPERATIONS=1000000
 
 DIR=$(readlink -f $(dirname $0))
+RCLOGDIR=$DIR/logs
 cd $DIR/YCSB
 
 if [ $# -eq 5 ]; then
@@ -47,6 +48,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -P workloads/${WORKLOAD}  \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
+      -p ramcloud.logFile=${RCLOGDIR}/rcclient-$(hostname -A | awk -F. '{print $1}').log \
       -p recordcount=${RECORDS} \
       -p operationcount=${NUM_OPERATIONS} \
       -p requestdistribution=uniform \
@@ -58,6 +60,7 @@ else
       -P workloads/${WORKLOAD} -load \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
+      -p ramcloud.logFile=${RCLOGDIR}/rcclient-$(hostname -A | awk -F. '{print $1}').log \
       -p recordcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
