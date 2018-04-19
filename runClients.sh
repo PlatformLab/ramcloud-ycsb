@@ -82,7 +82,7 @@ wait
 ./waitClients.sh $LOGS
 
 # Log that we've finished the workload on the server side.
-sudo ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
+sudo ./helper $COORD_LOCATOR logMessage NOTICE "**** Workload finished"
 
 # Print summary throughput.
 overallThroughput=$(grep OVERALL $LOGS | grep Throughput | awk '{sum+=$3} END{print sum}')
