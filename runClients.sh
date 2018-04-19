@@ -9,6 +9,9 @@ fi
 COORD_LOCATOR="basic+udp:host=128.110.153.76,port=12246"
 CLIENTS="ms0838 ms0922 ms0831 ms0926 ms0923 ms0845 ms0919 ms0803 ms0903 ms0837 ms1023 ms0828 ms0928 ms0807 ms0918 ms0907 ms0815 ms0927 ms0912 ms0936 ms0802 ms0806 ms1040 ms1006 ms0829 ms0909 ms0811 ms0930 ms0917 ms1012 ms0938 ms0808 ms1031 ms0902 ms0834 ms0945 ms1038 ms0929 ms0901 ms0818 ms0906 ms0934 ms0817 ms0937 ms0939 ms1020 ms1041"
 LOG_DIR=logs
+TIME=$(date +%Y%m%d%H%M%S)
+
+mkdir -p ${LOG_DIR}
 
 WORKLOAD=$1
 
@@ -84,3 +87,8 @@ sudo ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
 # Print summary throughput.
 overallThroughput=$(grep OVERALL $LOGS | grep Throughput | awk '{sum+=$3} END{print sum}')
 echo "Workload${WORKLOAD} Throughout: ${overallThroughput} qps"
+
+# Move the logs directory to a new location to prevent overwriting of
+# PerfStats. This is a hack around the fact that we hardcoded the directory
+# name logs in several places, but it should be effective before the deadline.
+mv "$LOG_DIR" "${LOG_DIR}_workload${WORKLOAD}_${TIME}"

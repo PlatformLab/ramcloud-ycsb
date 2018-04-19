@@ -1,4 +1,5 @@
 >&2 echo "Batch filling..."
+mkdir -p logs
 ssh ms0838 "cd /shome/ramcloud-ycsb; sudo ./rc-ycsb.sh workloada 10000000 basic+udp:host=128.110.153.76,port=12246 0 212765 > logs/fill.ms0838.log 2> logs/fill.ms0838.stderr" &
 ssh ms0922 "cd /shome/ramcloud-ycsb; sudo ./rc-ycsb.sh workloada 10000000 basic+udp:host=128.110.153.76,port=12246 212765 212765 > logs/fill.ms0922.log 2> logs/fill.ms0922.stderr" &
 ssh ms0831 "cd /shome/ramcloud-ycsb; sudo ./rc-ycsb.sh workloada 10000000 basic+udp:host=128.110.153.76,port=12246 425530 212765 > logs/fill.ms0831.log 2> logs/fill.ms0831.stderr" &
