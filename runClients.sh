@@ -13,16 +13,18 @@ LOG_DIR=logs
 WORKLOAD=$1
 
 function clean_clients() {
+  >&2 echo "Stoping any previous client... "
   for s in $CLIENTS; do
-    echo "Stop client: $s"
     ssh $s sudo pkill java
     ssh $s sudo rm -f /dev/hugepages/*
   done
+  >&2 echo "Finished stopping client... "
 }
 
 # Clean clients when receive SIGINT
 function sigint_handler() {
   trap - 2
+  >&2 echo "Got SIGINT... "
   clean_clients
   exit 1
 }
@@ -41,12 +43,9 @@ sudo ./helper $COORD_LOCATOR getStats > $PERF_BEFORE
 
 # Find the last CLIENT name, so we can treat it specially.
 for CLIENT in $CLIENTS; do LAST_CLIENT=$CLIENT; done
-echo $LAST_CLIENT
 
-# Run the workload (possibly fill) specified on the command line and wait until
-# completion.
-
-echo "Running workload $WORKLOAD for run $RUN..."
+# Run the workload specified on the command line and wait until completion.
+>&2 echo "Running workload $WORKLOAD for run $RUN..."
 # Set up a server-side log that we're starting the workload.
 sudo ./helper $COORD_LOCATOR logMessage NOTICE \
   "**** Running workload $WORKLOAD"
@@ -54,6 +53,7 @@ sudo ./helper $COORD_LOCATOR logMessage NOTICE \
 # Track the logs for waiting
 LOGS=""
 # Actually start workload on each client.
+>&2 echo "Starting clients..."
 for CLIENT in $CLIENTS; do
 
     ERR_FILE="logs/workload${WORKLOAD}.${CLIENT}.stderr"
@@ -62,7 +62,6 @@ for CLIENT in $CLIENTS; do
 
     CMD="cd /shome/ramcloud-ycsb; sudo ./rc-ycsb.sh workload${WORKLOAD} 10000000 basic+udp:host=128.110.153.76,port=12246 > ${LOG_FILE} 2> ${ERR_FILE}"
 
-    echo "Starting CLIENT on $CLIENT"
     if [ $CLIENT == $LAST_CLIENT ]; then
      ssh $CLIENT "$CMD"
     else
@@ -77,11 +76,11 @@ sudo ./helper $COORD_LOCATOR getStats > $PERF_AFTER
 
 # Wait for CLIENTs to finish
 wait
-echo $LOGS
 ./waitClients.sh $LOGS
 
 # Log that we've finished the workload on the server side.
 sudo ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
 
 # Print summary throughput.
-grep OVERALL $LOGS | grep Throughput | awk '{sum+=$3} END{print sum}'
+overallThroughput=$(grep OVERALL $LOGS | grep Throughput | awk '{sum+=$3} END{print sum}')
+echo "Workload${WORKLOAD} Throughout: ${overallThroughput} qps"

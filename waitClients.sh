@@ -15,14 +15,14 @@ for ((COUNT=30; COUNT>0; COUNT--)); do
     if [ $LINES -ne 2 ]; then
       STATUS=problem
       if [ $COUNT -eq 1 ]; then
-        echo "WARNING: client appears not to have completed " \
+        >&2 echo "WARNING: client appears not to have completed " \
             "successfully; check $LOG"
       fi
     fi
   done
   if [ $STATUS == ok ]; then exit 0; fi
   if [ $COUNT -lt 20 ]; then
-      echo "Some clients not finished; waiting..."
+      >&2 echo "Some clients not finished; waiting..."
   fi
   sleep 1
 done
