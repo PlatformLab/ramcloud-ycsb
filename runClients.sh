@@ -71,16 +71,14 @@ for CLIENT in $CLIENTS; do
 
 done
 
-# Dump the PerfStats after when at least one client has finished.
+# Dump the PerfStats when at least one client has finished.
 sudo ./helper $COORD_LOCATOR getStats > $PERF_AFTER
 ./diffPerfStats.py $PERF_BEFORE $PERF_AFTER > $LOG_DIR/perfStats
 
 # Wait for CLIENTs to finish
+wait
 echo $LOGS
 ./waitClients.sh $LOGS
-
-# Wait a little longer; writing log messages doesn't mean fully exited.
-sleep 5
 
 # Log that we've finished the workload on the server side.
 sudo ./helper $COORD_LOCATOR logMessage NOTICE "**** Workloads finished"
