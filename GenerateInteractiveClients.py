@@ -9,8 +9,8 @@ import sys
 # Note that this list must change depending on the environment run in. For
 # CloudLab with DPDK, it must point at either the control-network names or the
 # control-network IP addresses.
-clients = ["ms0838","ms0922","ms0831","ms0926","ms0923","ms0845","ms0919","ms0803","ms0903","ms0837","ms1023","ms0828","ms0928","ms0807","ms0918","ms0907","ms0815","ms0927","ms0912","ms0936","ms0802","ms0806","ms1040","ms1006","ms0829","ms0909","ms0811","ms0930","ms0917","ms1012","ms0938","ms0808","ms1031","ms0902","ms0834","ms0945","ms1038","ms0929","ms0901","ms0818","ms0906","ms0934","ms0817","ms0937","ms0939","ms1020","ms1041"]
-coordinator="basic+udp:host=128.110.153.76,port=12246"
+clients = ["ms0903", "ms0918", "ms0907", "ms0927", "ms0912", "ms0936", "ms0909", "ms0930", "ms0917", "ms0938", "ms0902", "ms0945", "ms0929", "ms0901", "ms0906", "ms0934", "ms0937", "ms0813", "ms0821", "ms1003", "ms0824", "ms1035", "ms0838", "ms0831", "ms0845", "ms0803", "ms0837", "ms1023", "ms0828", "ms0807", "ms0815", "ms0802", "ms0806", "ms1040", "ms1006", "ms0829", "ms0811", "ms1012", "ms0808", "ms1031", "ms0834", "ms1038", "ms0818", "ms0817", "ms1020", "ms1041"]
+coordinator="basic+udp:host=128.110.153.147,port=12246"
 TOTAL_RECORDS = int(1e7)
 LOGS_DIR = "logs"
 
@@ -57,3 +57,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
