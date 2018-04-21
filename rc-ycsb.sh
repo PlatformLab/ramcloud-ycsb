@@ -9,7 +9,7 @@ fi
 WORKLOAD=$1
 RECORDS=$2
 COORD=$3
-NUM_OPERATIONS=1000000
+RUNNING_TIME=60
 
 DIR=$(readlink -f $(dirname $0))
 RCLOGDIR=$DIR/logs
@@ -50,7 +50,8 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p ramcloud.tableServerSpan=12 \
       -p ramcloud.logFile=${RCLOGDIR}/rcclient-$(hostname -A | awk -F. '{print $1}').log \
       -p recordcount=${RECORDS} \
-      -p operationcount=${NUM_OPERATIONS} \
+      -p operationcount=100000000 \
+      -p maxexecutiontime=${RUNNING_TIME} \
       -p requestdistribution=uniform \
       -threads 1 \
       -t \
