@@ -54,7 +54,11 @@ for CLIENT in $CLIENTS; do LAST_CLIENT=$CLIENT; done
 sudo ./helper $COORD_LOCATOR logMessage NOTICE \
   "**** Running workload $WORKLOAD"
 
-# Track the logs for waiting
+# Ask all servers to dump a TimeTrace roughly 40 seconds into the experiment.
+sudo ./helper $COORD_LOCATOR logTimeTrace 40 &
+ttlogpid=$!
+
+# Track the logs for statistics
 LOGS=""
 # Actually start workload on each client.
 >&2 echo "Starting clients..."
@@ -73,6 +77,11 @@ for CLIENT in $CLIENTS; do
     fi
 
 done
+
+# Wait for the ttlogger to finish before dumping PerfStats because dpdk doesn't
+# allow multiple applications to run simulatneously without special
+# configuration.
+wait $ttlogpid
 
 # Dump the PerfStats when at least one client has finished.
 sudo ./helper $COORD_LOCATOR getStats > $PERF_AFTER
