@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./BatchFill.sh 2> /tmp/Fill.stderr && \
+./BatchFill.sh && \
 ./runClients.sh a >> Results.txt && \
 ./runClients.sh b >> Results.txt && \
 ./runClients.sh c >> Results.txt && \
