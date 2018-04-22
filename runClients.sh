@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This script runs the CLIENTs for YCSB workloads; use InteractiveFill.mux for
 # pre-filling the data store.
 
@@ -6,10 +8,8 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-COORD_LOCATOR="basic+udp:host=128.110.153.147,port=12246"
-CLIENTS="ms0903 ms0918 ms0907 ms0927 ms0912 ms0936 ms0909 ms0930 ms0917 ms0938 ms0902 ms0945 ms0929 ms0901 ms0906 ms0934 ms0937 ms1003 ms1035 ms1023 ms1040 ms1006 ms1012 ms1031 ms1038 ms1020 ms1041"
+source clusterInfo.sh
 
-LOG_DIR=logs
 TIME=$(date +%Y%m%d%H%M%S)
 
 mkdir -p ${LOG_DIR}

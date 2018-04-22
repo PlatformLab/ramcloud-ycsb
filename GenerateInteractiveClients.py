@@ -3,16 +3,14 @@
 import os
 import sys
 
+from clusterInfo import *
+
 # This script generates a file for smux to run YCSB clients interactively.
 
 # We will fill a total of 10 million records using all available clients.
 # Note that this list must change depending on the environment run in. For
 # CloudLab with DPDK, it must point at either the control-network names or the
 # control-network IP addresses.
-clients = ["ms0903", "ms0918", "ms0907", "ms0927", "ms0912", "ms0936", "ms0909", "ms0930", "ms0917", "ms0938", "ms0902", "ms0945", "ms0929", "ms0901", "ms0906", "ms0934", "ms0937", "ms0813", "ms0821", "ms1003", "ms0824", "ms1035", "ms0838", "ms0831", "ms0845", "ms0803", "ms0837", "ms1023", "ms0828", "ms0807", "ms0815", "ms0802", "ms0806", "ms1040", "ms1006", "ms0829", "ms0811", "ms1012", "ms0808", "ms1031", "ms0834", "ms1038", "ms0818", "ms0817", "ms1020", "ms1041"]
-coordinator="basic+udp:host=128.110.153.147,port=12246"
-TOTAL_RECORDS = int(1e7)
-LOGS_DIR = "logs"
 
 def generateInteractiveFill():
     startIndex = 0
@@ -21,13 +19,13 @@ def generateInteractiveFill():
     print "LAYOUT = tiled"
 
     # We may wind up with a little less than 10 million, but that should be okay.
-    recordsPerClient = TOTAL_RECORDS / len(clients)
-    for client in clients:
-        logFile = os.path.join(LOGS_DIR, "fill.%s.log" % client)
+    recordsPerClient = TOTAL_RECORDS / len(CLIENTS)
+    for client in CLIENTS:
+        logFile = os.path.join(LOG_DIR, "fill.%s.log" % client)
         print '--------------------------------------------------'
         print 'ssh ' + client
         print 'cd ' + os.getcwd()
-        print "sudo ./rc-ycsb.sh workloada %d %s %d %d > %s" % (TOTAL_RECORDS, coordinator, startIndex, recordsPerClient, logFile)
+        print "sudo ./rc-ycsb.sh workloada %d %s %d %d > %s" % (TOTAL_RECORDS, COORD_LOCATOR, startIndex, recordsPerClient, logFile)
         startIndex += recordsPerClient
 
 def generateWorkload(x):
@@ -35,12 +33,12 @@ def generateWorkload(x):
     print "PANES_PER_WINDOW = 30"
     print "LAYOUT = tiled"
 
-    for client in clients:
-        logFile = os.path.join(LOGS_DIR, "workload%s.%s.log" % (x, client))
+    for client in CLIENTS:
+        logFile = os.path.join(LOG_DIR, "workload%s.%s.log" % (x, client))
         print '--------------------------------------------------'
         print 'ssh ' + client
         print 'cd ' + os.getcwd()
-        print "sudo ./rc-ycsb.sh workload%s %d %s > %s" % (x, TOTAL_RECORDS, coordinator, logFile)
+        print "sudo ./rc-ycsb.sh workload%s %d %s > %s" % (x, TOTAL_RECORDS, COORD_LOCATOR, logFile)
 
 
 def main():
