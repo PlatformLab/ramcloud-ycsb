@@ -3,3 +3,4 @@ helper
 ramcloud
 logs
 tags
+*.pyc
