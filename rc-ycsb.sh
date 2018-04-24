@@ -57,6 +57,9 @@ if [ "$INSERT_COUNT" = "" ]; then
       -t \
       -s
 else
+ # We use a single thread when filling initial data since there seems to be
+ # some destructor race between the RAMCloud clients under this setup that
+ # cause problems.
  java -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD} -load \
       -p ramcloud.coordinatorLocator=${COORD} \
@@ -65,6 +68,6 @@ else
       -p recordcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
-      -threads 8 \
+      -threads 1 \
       -s
 fi
