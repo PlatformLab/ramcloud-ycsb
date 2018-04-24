@@ -53,7 +53,7 @@ if [ "$INSERT_COUNT" = "" ]; then
       -p operationcount=100000000 \
       -p maxexecutiontime=${RUNNING_TIME} \
       -p requestdistribution=uniform \
-      -threads 1 \
+      -threads 8 \
       -t \
       -s
 else
@@ -65,6 +65,6 @@ else
       -p recordcount=${RECORDS} \
       -p insertstart=${INSERT_START} \
       -p insertcount=${INSERT_COUNT} \
-      -threads 1 \
+      -threads 8 \
       -s
 fi
