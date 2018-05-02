@@ -4,6 +4,7 @@ from __future__ import print_function
 
 with open("clusterInfo.sh") as f:
    for line in f:
+     if line.strip().startswith("#"): continue
      if '=' not in line:
        continue
      key, value = line.strip().split('=', 1)
