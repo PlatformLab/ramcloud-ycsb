@@ -44,7 +44,12 @@ export CP
 
 DB=com.yahoo.ycsb.db.RamCloudClient
 if [ "$INSERT_COUNT" = "" ]; then
- java -cp $CP com.yahoo.ycsb.Client -db $DB \
+ java -XX:+PrintGC \
+      -XX:+PrintGCDetails \
+      -XX:+PrintGCTimeStamps \
+      -Xms32G \
+      -Xmx32G \
+      -cp $CP com.yahoo.ycsb.Client -db $DB \
       -P workloads/${WORKLOAD}  \
       -p ramcloud.coordinatorLocator=${COORD} \
       -p ramcloud.tableServerSpan=12 \
