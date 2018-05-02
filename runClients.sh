@@ -3,7 +3,7 @@
 # This script runs the CLIENTs for YCSB workloads; use InteractiveFill.mux for
 # pre-filling the data store.
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   >&2 echo "Usage: $0 workloadletter"
   exit 1
 fi
@@ -15,6 +15,13 @@ TIME=$(date +%Y%m%d%H%M%S)
 mkdir -p ${LOG_DIR}
 
 WORKLOAD=$1
+NUM_CLIENTS=$2
+
+# If a number of clients is specified, then it overwrites the number available.
+if [[ -n "$NUM_CLIENTS" ]]; then
+    IFS='  ' read -r -a clientarray <<< "$CLIENTS"
+    CLIENTS=$(echo "${clientarray[@]:0:$NUM_CLIENTS}")
+fi
 
 function clean_clients() {
   >&2 echo "Stoping any previous client... "
