@@ -109,4 +109,4 @@ echo "Workload${WORKLOAD} Throughout: ${overallThroughput} qps"
 # PerfStats. This is a hack around the fact that we hardcoded the directory
 # name logs in several places, but it should be effective before the deadline.
 mv "$LOG_DIR" "${LOG_DIR}_workload${WORKLOAD}_${TIME}"
-ln -s "${LOG_DIR}_workload${WORKLOAD}_${TIME}" latest
+ln -f -s "${LOG_DIR}_workload${WORKLOAD}_${TIME}" latest
